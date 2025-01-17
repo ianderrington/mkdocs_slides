@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "mkdocs-slides"
+version = "0.1.0"
+description = "A MkDocs plugin for creating slide presentations within documentation"
+authors = ["Ian Derrington <Ian.Derrington@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "mkdocs_slides", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+mkdocs = ">=1.4.0"
+mkdocs-material = ">=9.0.0"
+PyYAML = ">=6.0"
+click = ">=8.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+black = "^23.0"
+isort = "^5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."mkdocs.plugins"]
+slides = "mkdocs_slides:SlidesPlugin" 

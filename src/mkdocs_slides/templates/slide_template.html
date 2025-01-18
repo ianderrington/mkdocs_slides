@@ -6,78 +6,119 @@
     <title>{{ title }}</title>
     <style>
         :root {
-            --base-font-size: 24px;
+            --slide-width: 1280px;
+            --slide-height: 720px;
+            --base-font-size: 40px;
         }
 
-        html, body {
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-        }
-
-        body {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: var(--slide-width);
+            height: var(--slide-height);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: var(--base-font-size);
-            line-height: 1.6;
+            line-height: 1.4;
             background: white;
-            text-align: left;
+            /* Prevent any text wrapping constraints */
+            max-width: none;
+            min-width: var(--slide-width);
         }
 
         .slide-content {
-            width: 1280px;  /* Standard HD width */
-            height: 720px;  /* 16:9 aspect ratio */
-            padding: var(--slide-padding, 48px);
+            width: 100%;
+            height: 100%;
+            padding: 60px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            transform-origin: center;
-            transform: scale(var(--scale, 1));
-            min-width: 1280px;
+            /* Ensure content uses full width */
+            max-width: none;
+            min-width: calc(var(--slide-width) - 120px); /* Account for padding */
         }
 
-        /* Typography with consistent relative sizes */
+        /* Reset any potential wrapping constraints */
+        .slide-content > * {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* Typography with fixed sizes */
         h1 { 
-            font-size: calc(var(--base-font-size) * 2.5);
-            margin-bottom: 0.5em;
+            font-size: 1.5em;
+            margin: 0 0 0.5em 0;
             line-height: 1.2;
+            width: 100%;
+            max-width: none;
         }
-
+        
         h2 { 
-            font-size: calc(var(--base-font-size) * 2);
-            margin-bottom: 0.5em;
+            font-size: 1.3em;
+            margin: 0 0 0.5em 0;
             line-height: 1.2;
+            width: 100%;
+            max-width: none;
         }
-
+        
         h3 { 
-            font-size: calc(var(--base-font-size) * 1.5);
-            margin-bottom: 0.5em;
+            font-size: 1.1em;
+            margin: 0 0 0.5em 0;
             line-height: 1.3;
+            width: 100%;
+            max-width: none;
         }
-
-        p, ul, ol, li { 
-            font-size: var(--base-font-size);
-            margin-bottom: 0.5em;
+        
+        p { 
+            margin: 0 0 0.8em 0;
+            line-height: 1.4;
+            width: 100%;
+            max-width: none;
+            /* Prevent text wrapping */
+            white-space: normal;
+            word-wrap: normal;
+            overflow-wrap: normal;
         }
         
         ul, ol {
-            margin: 0.5em 0 1em 0;
+            width: 100%;
+            max-width: none;
+            margin: 0.5em 0 0.8em 0;
             padding-left: 1.5em;
+            box-sizing: border-box;
+        }
+
+        li { 
+            margin-bottom: 0.4em;
+            line-height: 1.4;
         }
     </style>
     <script>
-        // Scale content to fit viewport while maintaining aspect ratio
         function scaleContent() {
-            const content = document.querySelector('.slide-content');
-            const scaleX = (window.innerWidth - 40) / content.offsetWidth;
-            const scaleY = (window.innerHeight - 40) / content.offsetHeight;
+            const html = document.documentElement;
+            const body = document.body;
+            
+            // Calculate scale to fit viewport
+            const scaleX = (window.innerWidth - 40) / body.offsetWidth;
+            const scaleY = (window.innerHeight - 40) / body.offsetHeight;
             const scale = Math.min(scaleX, scaleY, 1);
-            document.documentElement.style.setProperty('--scale', scale);
+            
+            // Apply scale to html element to scale everything uniformly
+            html.style.transform = `scale(${scale})`;
+            html.style.transformOrigin = 'center center';
         }
 
         window.addEventListener('load', scaleContent);

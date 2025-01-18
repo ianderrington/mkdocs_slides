@@ -16,6 +16,18 @@ class SlideParser:
         )
         self.slide_template = self.template_env.get_template('slide_template.html')
         self.files_to_write = []  # Store files that need to be written
+        # Default configuration
+        self.config = {
+            'padding': '64px',
+            'max_width': '1200px',
+            'aspect_ratio': '16/9',
+            'font_size': '24px'
+        }
+
+    def set_config(self, config):
+        # Update defaults with any provided config values
+        if config:
+            self.config.update(config)
 
     def process_markdown(self, markdown, page, config):
         """Process markdown content and replace slides blocks with HTML"""
@@ -29,7 +41,9 @@ class SlideParser:
                     raise ValueError("Missing required fields in slides configuration")
                 
                 slides = self._load_slides(slide_config['nav'])
-                return self._generate_slides_html(slide_config, slides)
+                html = self._generate_slides_html(slide_config, slides)
+                print("Generated HTML for slides:", html[:500])  # Print first 500 chars
+                return html
             except Exception as e:
                 return f'<div class="slides-error">Error processing slides: {str(e)}</div>'
         
@@ -43,21 +57,29 @@ class SlideParser:
 
         for path in nav_paths:
             try:
-                # Get absolute path to markdown file - look in slides directory
+                # Get absolute path to markdown file
                 md_path = os.path.join(docs_dir, 'slides', path)
                 if not os.path.exists(md_path):
-                    # Try without slides prefix in case path is already complete
                     md_path = os.path.join(docs_dir, path)
                 
                 with open(md_path, 'r', encoding='utf-8') as f:
                     content = f.read()
 
-                # Process markdown
-                md = Markdown(extensions=self.config.get('markdown_extensions', []))
+                # Process markdown with specific extensions
+                md = Markdown(extensions=[
+                    'meta',
+                    'tables',
+                    'fenced_code',
+                    'attr_list'
+                ])
                 html_content = md.convert(content.strip())
+                
+                # Ensure no wrapping divs are added
+                html_content = html_content.replace('<div class="markdown">', '').replace('</div>', '')
+                
                 title = self._extract_slide_title(content)
 
-                # Generate HTML file path preserving directory structure
+                # Generate HTML file path
                 html_path = os.path.splitext(path)[0] + '.html'
                 abs_html_path = os.path.join(site_dir, 'slides', html_path)
                 
@@ -67,13 +89,12 @@ class SlideParser:
                     title=title
                 )
 
-                # Store file info for writing
                 self.files_to_write.append({
                     'path': abs_html_path,
                     'content': slide_html
                 })
 
-                # Calculate relative path from current page to slide
+                # Calculate relative path
                 page_dir = os.path.dirname(self.page.url)
                 rel_path = os.path.relpath(
                     os.path.join('slides', html_path),
@@ -108,23 +129,28 @@ class SlideParser:
 
     def _generate_slides_html(self, config, slides):
         """Generate the slides container with iframes"""
-        html = f'<div class="slides-container" data-url-stub="{config["url_stub"]}">'
-        html += f'<h2 class="slides-title">{config["title"]}</h2>'
-        html += '<div class="slides-deck">'
+        style = f'''
+            --slide-padding: {self.config.get('padding', '64px')};
+            --slide-max-width: {self.config.get('max_width', '1200px')};
+            --slide-aspect-ratio: {self.config.get('aspect_ratio', '16/9')};
+            --slide-font-size: {self.config.get('font_size', '24px')};
+        '''
         
-        # Add iframe container
+        html = f'<div class="slides-deck" style="{style}">'
         html += '<div class="slides-viewport">'
+        
+        # Add slides
         for i, slide in enumerate(slides):
-            html += f'<iframe class="slide" id="{config["url_stub"]}-slide-{i+1}" src="{slide["html_path"]}" frameborder="0"></iframe>'
+            display = 'block' if i == 0 else 'none'
+            html += f'<iframe class="slide" src="{slide["html_path"]}" style="display: {display}"></iframe>'
         html += '</div>'
         
-        # Add controls
+        # Add controls with tooltips - simplified version
         html += '<div class="slides-controls">'
-        html += '<button class="prev-slide" title="Previous slide">←</button>'
-        html += '<span class="slide-progress"></span>'
-        html += '<button class="next-slide" title="Next slide">→</button>'
-        html += '<button class="fullscreen" title="Toggle fullscreen">⛶</button>'
+        html += '<button class="prev-slide" title="Previous (← Left arrow)">←</button>'
+        html += f'<span class="slide-progress">1 / {len(slides)}</span>'
+        html += '<button class="next-slide" title="Next (→ Right arrow)">→</button>'
         html += '</div>'
         
-        html += '</div></div>'
+        html += '</div>'
         return html 

@@ -1,7 +1,7 @@
 # Slides Demo
 
 ```slides
-title: Your Presentation
+title: Important Presentation
 url_stub: unique-id
 nav:
   - intro/slide1.md

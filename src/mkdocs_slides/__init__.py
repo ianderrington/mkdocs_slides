@@ -2,34 +2,59 @@ from mkdocs.plugins import BasePlugin
 import os
 from mkdocs.structure.files import File
 from .slide_parser import SlideParser
+from pathlib import Path
+from mkdocs.config import config_options
 
 class SlidesPlugin(BasePlugin):
+    config_scheme = (
+        ('padding', config_options.Type(str, default='64px')),
+        ('max_width', config_options.Type(str, default='1200px')),
+        ('aspect_ratio', config_options.Type(str, default='16/9')),
+        ('font_size', config_options.Type(str, default='24px')),
+    )
+
     def __init__(self):
         super().__init__()
         self.parser = SlideParser()
         
     def on_files(self, files, config):
         """Register static assets"""
-        # Get the actual path to static files
         static_dir = os.path.join(os.path.dirname(__file__), 'static')
         
         # Add CSS file
-        files.append(File(
-            path='slides.css',  # Just the filename
-            src_dir=os.path.join(static_dir, 'css'),  # Full path to css directory
+        css_file = File(
+            path='slides.css',
+            src_dir=os.path.join(static_dir, 'css'),
             dest_dir=os.path.join(config['site_dir'], 'assets', 'slides', 'css'),
             use_directory_urls=False
-        ))
+        )
+        files.append(css_file)
         
         # Add JS file
-        files.append(File(
-            path='slides.js',  # Just the filename
-            src_dir=os.path.join(static_dir, 'js'),  # Full path to js directory
+        js_file = File(
+            path='slides.js',
+            src_dir=os.path.join(static_dir, 'js'),
             dest_dir=os.path.join(config['site_dir'], 'assets', 'slides', 'js'),
             use_directory_urls=False
-        ))
+        )
+        files.append(js_file)
         
+        print(f"Adding slides.js from {js_file.src_path} to {js_file.dest_path}")
         return files
+
+    def on_config(self, config):
+        """Add our javascript and pass configuration"""
+        if 'extra_javascript' not in config:
+            config['extra_javascript'] = []
+        if 'extra_css' not in config:
+            config['extra_css'] = []
+        
+        config['extra_javascript'].append('assets/slides/js/slides.js')
+        config['extra_css'].append('assets/slides/css/slides.css')
+        
+        # Pass plugin config to parser
+        self.parser.set_config(self.config)
+        return config
 
     def on_page_markdown(self, markdown, page, config, files):
         """Process the markdown content and replace slides blocks with HTML"""
@@ -41,14 +66,8 @@ class SlidesPlugin(BasePlugin):
             )
             
             if '```slides' in markdown:
-                # Write slide files
                 self.parser.write_files()
-                
-                # Add CSS/JS
-                page.head_extra = [
-                    '<link rel="stylesheet" href="/assets/slides/css/slides.css">',
-                    '<script src="/assets/slides/js/slides.js"></script>'
-                ]
+            
             return processed_markdown
         except Exception as e:
             print(f"Error processing slides in {page.file.src_path}: {str(e)}")

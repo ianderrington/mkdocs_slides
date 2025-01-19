@@ -27,7 +27,7 @@ slides
         - slides/presentation/*.md
 ```
 
-For full documentation, visit [the plugin documentation](https://yourusername.github.io/mkdocs-slides/).
+For full documentation, visit [the plugin documentation](https://ianderrington.github.io/mkdocs-slides/).
 
 ## License
 

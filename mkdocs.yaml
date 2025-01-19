@@ -18,9 +18,6 @@ nav:
   - Home: index.md
   - Demo:
     - slides/slides_demo.md
-  - Documentation:
-    - Installation: installation.md
-    - Usage: usage.md
 
 
 markdown_extensions:

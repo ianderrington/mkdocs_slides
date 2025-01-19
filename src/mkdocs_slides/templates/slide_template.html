@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    <!-- Add highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
         :root {
             --slide-width: 1280px;
@@ -105,8 +108,46 @@
             margin-bottom: 0.4em;
             line-height: 1.4;
         }
+
+        /* Code block styling */
+        pre {
+            margin: 1em 0;
+            padding: 1em;
+            background: #f6f8fa;
+            border-radius: 4px;
+            font-size: 0.6em;  /* Smaller than regular text */
+            line-height: 1.45;
+            overflow-x: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        /* Inline code */
+        p code, li code {
+            background: #f6f8fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        /* Ensure code blocks use full width */
+        .slide-content pre, .slide-content pre code {
+            max-width: none;
+            width: 100%;
+        }
     </style>
     <script>
+        // Initialize syntax highlighting
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+
         function scaleContent() {
             const html = document.documentElement;
             const body = document.body;

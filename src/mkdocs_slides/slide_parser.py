@@ -70,9 +70,13 @@ class SlideParser:
                     'meta',
                     'tables',
                     'fenced_code',
-                    'attr_list'
+                    'attr_list',
+                    'codehilite'  # Add syntax highlighting support
                 ])
                 html_content = md.convert(content.strip())
+                
+                # Ensure code blocks have proper language classes
+                html_content = html_content.replace('<pre><code>', '<pre><code class="hljs">')
                 
                 # Ensure no wrapping divs are added
                 html_content = html_content.replace('<div class="markdown">', '').replace('</div>', '')
@@ -145,11 +149,14 @@ class SlideParser:
             html += f'<iframe class="slide" src="{slide["html_path"]}" style="display: {display}"></iframe>'
         html += '</div>'
         
-        # Add controls with tooltips - simplified version
+        # Add controls with tooltips and fullscreen button
         html += '<div class="slides-controls">'
+        html += '<div class="nav-controls">'
         html += '<button class="prev-slide" title="Previous (← Left arrow)">←</button>'
         html += f'<span class="slide-progress">1 / {len(slides)}</span>'
         html += '<button class="next-slide" title="Next (→ Right arrow)">→</button>'
+        html += '</div>'
+        html += '<button class="fullscreen-toggle" title="Toggle fullscreen (F)">⛶</button>'
         html += '</div>'
         
         html += '</div>'

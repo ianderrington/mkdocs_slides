@@ -34,6 +34,7 @@
     display: block;
 }
 
+/* Controls container */
 .slides-controls {
     position: absolute;
     bottom: 0;
@@ -42,94 +43,87 @@
     height: 50px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    background: #f8f9fa;
-    border-top: 1px solid #ddd;
+    justify-content: space-between;
+    padding: 0 1rem;
+    background: transparent;
+    opacity: 0;  /* Start fully transparent */
+    transition: all 0.2s ease;
     z-index: 101;
+}
+
+/* Show controls on hover */
+.slides-deck:hover .slides-controls {
+    opacity: 1;
+    background: rgba(248, 249, 250, 0.9);
+    border-top: 1px solid #ddd;
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 auto;
 }
 
 /* Control buttons */
 .slides-controls button {
     padding: 0.5rem 1rem;
-    border: 1px solid #ddd;
-    background: white;
+    border: 1px solid transparent;
+    background: transparent;
     border-radius: 4px;
     cursor: pointer;
-    position: relative;
-    margin: 0 0.5rem;
-    font-size: 1.2rem;
+    color: transparent;  /* Start with transparent text */
+    transition: all 0.2s ease;
 }
 
-/* Button tooltips */
-.slides-controls button[title] {
-    position: relative;
+/* Button hover states */
+.slides-deck:hover .slides-controls button {
+    border-color: #ddd;
+    background: white;
+    color: #666;  /* Show text on hover */
 }
 
-.slides-controls button[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    background: #333;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 14px;
-    pointer-events: none;
-    z-index: 1000;
+.slides-controls button:hover {
+    background: #f0f0f0;
 }
 
-/* Arrow to tooltip */
-.slides-controls button[title]:hover::before {
-    content: '';
-    position: absolute;
-    bottom: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top: 6px solid #333;
-}
-
-.slides-controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.slides-controls button:disabled:hover::after,
-.slides-controls button:disabled:hover::before {
-    display: none;
-}
-
+/* Progress text */
 .slide-progress {
     min-width: 4em;
     text-align: center;
     font-size: 0.9rem;
+    color: transparent;
+    transition: all 0.2s ease;
+}
+
+.slides-deck:hover .slide-progress {
     color: #666;
 }
 
-/* Fullscreen mode */
-.slides-deck.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100vh;
-    margin: 0;
-    border: none;
-    border-radius: 0;
-    z-index: 9999;
+/* Fullscreen button */
+.fullscreen-toggle {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    margin-left: auto;
+    opacity: 0;  /* Start invisible */
+}
+
+.slides-deck:hover .fullscreen-toggle {
+    opacity: 1;
+}
+
+/* Fullscreen mode adjustments */
+.slides-deck.fullscreen .slides-controls {
+    bottom: 20px;
+    opacity: 0;  /* Start invisible in fullscreen too */
+}
+
+.slides-deck.fullscreen:hover .slides-controls {
+    opacity: 1;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .slides-deck {
-        margin: 1em 0;
-    }
-    
     .slides-controls {
         height: 40px;
     }

@@ -42,7 +42,7 @@ class SlideParser:
                 
                 slides = self._load_slides(slide_config['nav'])
                 html = self._generate_slides_html(slide_config, slides)
-                print("Generated HTML for slides:", html[:500])  # Print first 500 chars
+                # print("Generated HTML for slides:", html[:500])  # Print first 500 chars
                 return html
             except Exception as e:
                 return f'<div class="slides-error">Error processing slides: {str(e)}</div>'

@@ -34,7 +34,7 @@ class SlideParser:
     def process_markdown(self, markdown, page, config):
         """Process markdown content and replace slides blocks with HTML"""
         self.config = config
-        self.page = page
+        self.page = page  # Store the page object for path resolution
 
         def replace_slides(match):
             try:
@@ -44,12 +44,9 @@ class SlideParser:
 
                 slides = self._load_slides(slide_config["nav"])
                 html = self._generate_slides_html(slide_config, slides)
-                # print("Generated HTML for slides:", html[:500])  # Print first 500 chars
                 return html
             except Exception as e:
-                return (
-                    f'<div class="slides-error">Error processing slides: {str(e)}</div>'
-                )
+                return f'<div class="slides-error">Error processing slides: {str(e)}</div>'
 
         return self.slides_pattern.sub(replace_slides, markdown)
 
@@ -59,12 +56,29 @@ class SlideParser:
         docs_dir = self.config["docs_dir"]
         site_dir = self.config["site_dir"]
 
+        # Get the directory of the current markdown file
+        current_file_dir = os.path.dirname(os.path.join(docs_dir, self.page.file.src_path))
+
         for path in nav_paths:
             try:
-                # Get absolute path to markdown file
-                md_path = os.path.join(docs_dir, "slides", path)
-                if not os.path.exists(md_path):
-                    md_path = os.path.join(docs_dir, path)
+                # Try multiple path resolutions in order:
+                possible_paths = [
+                    os.path.join(current_file_dir, path),  # Relative to current file
+                    os.path.join(docs_dir, path),          # Relative to docs root
+                    os.path.join(docs_dir, "slides", path) # Legacy support for slides/ directory
+                ]
+
+                md_path = None
+                for possible_path in possible_paths:
+                    if os.path.exists(possible_path):
+                        md_path = possible_path
+                        break
+
+                if md_path is None:
+                    raise FileNotFoundError(
+                        f"Could not find slide file '{path}'. Tried:\n" +
+                        "\n".join(f"- {p}" for p in possible_paths)
+                    )
 
                 with open(md_path, "r", encoding="utf-8") as f:
                     content = f.read()

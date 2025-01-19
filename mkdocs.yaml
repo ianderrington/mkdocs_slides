@@ -1,6 +1,6 @@
 site_name: MkDocs Slides Plugin
 site_description: A plugin for MkDocs that enables beautiful slide presentations within documentation
-repo_url: https://github.com/yourusername/mkdocs-slides
+repo_url: https://github.com/ianderrington/mkdocs_slides
 theme:
   name: material
   features:

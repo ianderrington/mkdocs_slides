@@ -142,3 +142,37 @@
 .slides-controls {
     z-index: 101;
 } 
+
+.slides-deck.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    margin: 0;
+    z-index: 1000;
+    background: white;
+}
+
+/* Make sure the fullscreen button is visible */
+.fullscreen-toggle {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    margin-left: auto;
+    opacity: 0;  /* Start invisible */
+}
+
+.slides-deck:hover .fullscreen-toggle {
+    opacity: 1;
+}
+
+/* Fullscreen mode adjustments */
+.slides-deck.fullscreen .slides-controls {
+    bottom: 20px;
+    opacity: 0;  /* Start invisible in fullscreen too */
+}
+
+.slides-deck.fullscreen:hover .slides-controls {
+    opacity: 1;
+} 

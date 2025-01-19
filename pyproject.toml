@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mkdocs-slides"
-version = "0.1.0"
+version = "0.1.2"
 description = "A MkDocs plugin for creating slide presentations within documentation"
 authors = ["Ian Derrington <Ian.Derrington@gmail.com>"]
 license = "MIT"

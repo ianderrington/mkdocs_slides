@@ -10,7 +10,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="mkdocs-slides",
-    version="0.1.0",
+    version="0.1.2",
     author="Ian Derrington",
     author_email="Ian.Derrington@gmail.com",
     description="A MkDocs plugin for creating slide presentations within documentation",

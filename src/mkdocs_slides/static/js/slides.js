@@ -8,6 +8,8 @@ window.addEventListener('load', function() {
         const nextButton = deck.querySelector('.next-slide');
         const progress = deck.querySelector('.slide-progress');
         const fullscreenBtn = deck.querySelector('.fullscreen-toggle');
+        const overviewBtn = deck.querySelector('.overview-toggle');
+        const overviewCloseBtn = deck.querySelector('.overview-close');
         let currentIndex = 0;
 
         function showSlide(index) {
@@ -44,6 +46,17 @@ window.addEventListener('load', function() {
             window.dispatchEvent(new Event('resize'));
         }
 
+        function toggleOverview() {
+            deck.classList.toggle('overview-active');
+            if (deck.classList.contains('overview-active')) {
+                overviewBtn.textContent = '×';
+                overviewBtn.title = 'Close overview (O)';
+            } else {
+                overviewBtn.textContent = '⊞';
+                overviewBtn.title = 'Show overview (O)';
+            }
+        }
+
         // Set active deck on any interaction
         deck.addEventListener('mouseenter', () => {
             activeDeck = deck;
@@ -57,6 +70,19 @@ window.addEventListener('load', function() {
         prevButton.addEventListener('click', prevSlide);
         nextButton.addEventListener('click', nextSlide);
         fullscreenBtn.addEventListener('click', toggleFullscreen);
+        overviewBtn.addEventListener('click', toggleOverview);
+
+        // Add click handlers for overview slides
+        deck.querySelectorAll('.overview-slide').forEach(slide => {
+            slide.addEventListener('click', () => {
+                const index = parseInt(slide.dataset.index);
+                showSlide(index);
+                toggleOverview();
+            });
+        });
+
+        // Add click handler for overview close button
+        overviewCloseBtn.addEventListener('click', toggleOverview);
 
         // Keyboard navigation - moved to global handler
         showSlide(0);
@@ -100,10 +126,18 @@ window.addEventListener('load', function() {
                 }
                 break;
             case 'Escape':
-                if (activeDeck.classList.contains('fullscreen')) {
+                if (activeDeck.classList.contains('overview-active')) {
+                    activeDeck.querySelector('.overview-toggle').click();
+                    e.preventDefault();
+                } else if (activeDeck.classList.contains('fullscreen')) {
                     activeDeck.querySelector('.fullscreen-toggle').click();
                     e.preventDefault();
                 }
+                break;
+            case 'o':
+            case 'O':
+                toggleOverview();
+                e.preventDefault();
                 break;
         }
     });

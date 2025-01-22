@@ -104,7 +104,7 @@
 .fullscreen-toggle {
     padding: 0.5rem;
     font-size: 1.2rem;
-    margin-left: auto;
+    margin-left: 0;  /* Remove auto margin since we're using button-group */
     opacity: 0;  /* Start invisible */
 }
 
@@ -159,7 +159,7 @@
 .fullscreen-toggle {
     padding: 0.5rem;
     font-size: 1.2rem;
-    margin-left: auto;
+    margin-left: 0;  /* Remove auto margin since we're using button-group */
     opacity: 0;  /* Start invisible */
 }
 
@@ -175,4 +175,130 @@
 
 .slides-deck.fullscreen:hover .slides-controls {
     opacity: 1;
+}
+
+/* Overview mode */
+.slides-overview {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;  /* Take up most but not all of viewport */
+    height: 80vh;  /* Leave some space at top and bottom */
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;  /* Enable vertical scrolling */
+}
+
+/* Dim the background when overview is active */
+.slides-deck.overview-active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.slides-deck.overview-active .slides-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    align-items: start;
+}
+
+/* Add a close button */
+.overview-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.overview-close:hover {
+    opacity: 1;
+}
+
+/* Style scrollbar for overview */
+.slides-overview::-webkit-scrollbar {
+    width: 8px;
+}
+
+.slides-overview::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.slides-overview::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.slides-overview::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.overview-slide {
+    position: relative;
+    aspect-ratio: 16/9;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.overview-slide:hover {
+    transform: scale(1.05);
+}
+
+.overview-slide iframe {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    pointer-events: none;
+    background: white;
+}
+
+.overview-number {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Overview and fullscreen buttons container */
+.slides-controls .button-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+/* Overview button */
+.overview-toggle {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    opacity: 0;  /* Start invisible like other controls */
+    transition: all 0.2s ease;
+}
+
+/* Show overview button on hover */
+.slides-deck:hover .overview-toggle {
+    opacity: 1;
+    color: #666;
 } 

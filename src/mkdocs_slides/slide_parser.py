@@ -177,16 +177,28 @@ class SlideParser:
             html += f'<iframe class="slide" src="{slide["html_path"]}" style="display: {display}"></iframe>'
         html += "</div>"
 
-        # Add controls with tooltips and fullscreen button
+        # Add overview grid
+        html += '<div class="slides-overview">'
+        html += '<button class="overview-close" title="Close overview (Esc)">×</button>'
+        for i, slide in enumerate(slides):
+            html += f'<div class="overview-slide" data-index="{i}">'
+            html += f'<iframe src="{slide["html_path"]}"></iframe>'
+            html += f'<span class="overview-number">{i + 1}</span>'
+            html += '</div>'
+        html += '</div>'
+
+        # Add controls with tooltips and buttons
         html += '<div class="slides-controls">'
         html += '<div class="nav-controls">'
         html += '<button class="prev-slide" title="Previous (← Left arrow)">←</button>'
         html += f'<span class="slide-progress">1 / {len(slides)}</span>'
         html += '<button class="next-slide" title="Next (→ Right arrow)">→</button>'
         html += "</div>"
-        html += (
-            '<button class="fullscreen-toggle" title="Toggle fullscreen (F)">⛶</button>'
-        )
+        # Group the overview and fullscreen buttons
+        html += '<div class="button-group">'
+        html += '<button class="overview-toggle" title="Toggle overview (O)">⊞</button>'
+        html += '<button class="fullscreen-toggle" title="Toggle fullscreen">⛶</button>'
+        html += "</div>"
         html += "</div>"
 
         html += "</div>"

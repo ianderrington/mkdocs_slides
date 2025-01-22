@@ -13,7 +13,8 @@ class SlidesPlugin(BasePlugin):
         ("padding", config_options.Type(str, default="64px")),
         ("max_width", config_options.Type(str, default="1200px")),
         ("aspect_ratio", config_options.Type(str, default="16/9")),
-        ("font_size", config_options.Type(str, default="24px")),
+        ("font_size", config_options.Type(str, default="32px")),
+        ("template", config_options.Type(str, default=None)),
     )
 
     def __init__(self):
@@ -57,6 +58,16 @@ class SlidesPlugin(BasePlugin):
 
         # Pass plugin config to parser
         self.parser.set_config(self.config)
+
+        # Pass custom template path if provided
+        if self.config.get("template"):
+            template_path = os.path.abspath(self.config["template"])
+            if not os.path.exists(template_path):
+                print(f"Warning: Custom template {template_path} not found, using default")
+            else:
+                print(f"Using custom template {template_path}")
+                self.parser.set_template(template_path)
+
         return config
 
     def on_page_markdown(self, markdown, page, config, files):

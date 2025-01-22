@@ -12,24 +12,36 @@ class SlideParser:
     def __init__(self):
         self.slides_pattern = re.compile(r"```slides\s*(.*?)```", re.DOTALL)
         self.template_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(
-                os.path.join(os.path.dirname(__file__), "templates")
-            )
+            loader=jinja2.FileSystemLoader([
+                os.path.join(os.path.dirname(__file__), "templates"),
+                os.path.curdir  # Allow loading from current directory
+            ])
         )
-        self.slide_template = self.template_env.get_template("slide_template.html")
+        self.template_name = "slide_template.html"  # Default template
+        self.slide_template = self.template_env.get_template(self.template_name)
         self.files_to_write = []  # Store files that need to be written
         # Default configuration
         self.config = {
             "padding": "64px",
             "max_width": "1200px",
             "aspect_ratio": "16/9",
-            "font_size": "24px",
+            "font_size": "32px",  # Updated default
         }
 
     def set_config(self, config):
         # Update defaults with any provided config values
         if config:
             self.config.update(config)
+
+    def set_template(self, template_path):
+        """Set a custom template path"""
+        template_dir = os.path.dirname(template_path)
+        template_name = os.path.basename(template_path)
+        
+        # Add the template directory to the loader
+        self.template_env.loader.searchpath.insert(0, template_dir)
+        self.template_name = template_name
+        self.slide_template = self.template_env.get_template(template_name)
 
     def process_markdown(self, markdown, page, config):
         """Process markdown content and replace slides blocks with HTML"""

@@ -12,7 +12,9 @@ theme:
 
 plugins:
   - search
-  - slides  # Our plugin
+  - slides:
+      font_size: "28px"
+      template: "layouts/slide_template.html"
 
 nav:
   - Home: index.md

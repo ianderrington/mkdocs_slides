@@ -2,6 +2,27 @@ window.addEventListener('load', function() {
     // Track the active deck globally
     let activeDeck = null;
 
+    // Handle orientation changes
+    function handleOrientation() {
+        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+        document.querySelectorAll('.slides-deck').forEach(deck => {
+            if (isPortrait) {
+                deck.classList.add('portrait');
+                // Exit fullscreen if active
+                if (deck.classList.contains('fullscreen')) {
+                    deck.querySelector('.fullscreen-toggle').click();
+                }
+            } else {
+                deck.classList.remove('portrait');
+            }
+        });
+    }
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', handleOrientation);
+    window.addEventListener('resize', handleOrientation);
+    handleOrientation(); // Initial check
+
     document.querySelectorAll('.slides-deck').forEach(deck => {
         const slides = Array.from(deck.querySelectorAll('.slide'));
         const prevButton = deck.querySelector('.prev-slide');

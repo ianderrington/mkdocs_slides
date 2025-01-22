@@ -169,6 +169,14 @@ class SlideParser:
         """
 
         html = f'<div class="slides-deck" style="{style}">'
+        
+        # Add portrait mode message
+        html += '<div class="portrait-message">'
+        html += '<span>Please rotate your device</span>'
+        html += '<span class="rotate-icon">📱</span>'
+        html += '<span>for best viewing experience</span>'
+        html += '</div>'
+
         html += '<div class="slides-viewport">'
 
         # Add slides

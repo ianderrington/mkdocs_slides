@@ -301,4 +301,106 @@
 .slides-deck:hover .overview-toggle {
     opacity: 1;
     color: #666;
+}
+
+/* Mobile handling */
+.slides-deck {
+    position: relative;
+    width: 100%;
+    max-width: var(--slide-max-width, 1200px);
+    margin: 2em auto;
+    aspect-ratio: 16 / 9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Portrait mode message */
+.portrait-message {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    z-index: 1002;
+    font-size: 1.2em;
+}
+
+.portrait-message .rotate-icon {
+    font-size: 2em;
+    margin: 10px;
+    display: block;
+    transform: rotate(90deg);
+    animation: rotate 2s infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(90deg); }
+    20% { transform: rotate(0deg); }
+    80% { transform: rotate(0deg); }
+    100% { transform: rotate(90deg); }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .slides-deck {
+        margin: 1em auto;
+        border-radius: 4px;
+    }
+
+    /* Show portrait message in portrait mode */
+    @media (orientation: portrait) {
+        .slides-deck .portrait-message {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slides-deck .slides-viewport,
+        .slides-deck .slides-controls {
+            display: none;
+        }
+    }
+
+    /* Landscape adjustments */
+    @media (orientation: landscape) {
+        .slides-deck {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .slides-controls {
+            height: 40px;
+            padding: 0 0.5rem;
+        }
+
+        .slides-controls button {
+            padding: 0.3rem 0.7rem;
+            font-size: 0.9rem;
+        }
+
+        .slide-progress {
+            font-size: 0.8rem;
+        }
+
+        /* Adjust overview for mobile */
+        .slides-overview {
+            width: 100vw;
+            height: 100vh;
+            padding: 15px;
+        }
+
+        .overview-slide {
+            min-width: 160px;
+        }
+    }
 } 

@@ -139,10 +139,21 @@ window.addEventListener('load', function() {
         }
     });
 
+    // Prevent clicks on slides from stopping keyboard events
+    document.querySelectorAll('.slide').forEach(slide => {
+        slide.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeDeck?.classList.contains('fullscreen')) {
+                showControls();
+            }
+        });
+    });
+
     // Global keyboard handler
     document.addEventListener('keydown', function(e) {
         if (!activeDeck) return;
 
+        // Handle keyboard events even when slides are clicked
         const controls = {
             prevSlide: activeDeck.querySelector('.prev-slide'),
             nextSlide: activeDeck.querySelector('.next-slide')

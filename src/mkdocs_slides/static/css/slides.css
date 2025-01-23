@@ -136,14 +136,13 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vh !important;  /* Use viewport height for width */
-        height: 100vw !important; /* Use viewport width for height */
-        max-width: none;
+        width: 100vh !important;
+        height: 100vw !important;
+        transform-origin: top left;
+        transform: rotate(90deg) translateY(-100%);
         margin: 0;
         background: black;
         z-index: 9999;
-        transform-origin: top left;
-        transform: rotate(90deg) translateY(-100%);
     }
 
     /* Adjust viewport for rotated view */
@@ -155,64 +154,46 @@
         left: 0;
     }
 
-    /* Mobile navigation */
+    /* Mobile navigation - adjusted positioning */
     .mobile-nav {
         position: fixed;
-        bottom: 20px;
-        left: 50%;
-        /* Adjust transform to position on the left side of rotated view */
-        transform: rotate(-90deg) translate(-50%, -50vw);
+        bottom: 40px;
+        left: calc(100vw - 40px);  /* Position from the rotated viewport */
+        transform:  translateX(-50%);
         display: flex;
         gap: 20px;
         background: rgba(0, 0, 0, 0.7);
-        padding: 10px 20px;
-        border-radius: 20px;
+        padding: 12px 24px;
+        border-radius: 24px;
         z-index: 10000;
-        opacity: 0;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
-                   0 2px 8px rgba(0, 0, 0, 0.3);
+        opacity: 1;  /* Always visible in mobile */
     }
 
-    /* Mobile close button - more visible */
+    /* Mobile close button - adjusted positioning */
     .mobile-close {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: none;
+        bottom: 20px;
+        right: calc(100vw - 20px);  /* Position from the rotated viewport */
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
         border: none;
-        width: 44px;
-        height: 44px;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
         font-size: 36px;
         display: none;
         align-items: center;
         justify-content: center;
         z-index: 10000;
         cursor: pointer;
-        /* Use solid color instead of gradient for better visibility */
-        color: rgba(255, 255, 255, 0.9);
-        /* Adjust transform to position correctly in rotated view */
-        transform: rotate(-90deg) translate(-50vh, 0);
-        transition: all 0.3s ease;
-        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .mobile-close:hover {
-        color: white;
-        transform: rotate(-90deg) translate(-50vh, 0) scale(1.1);
-        text-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        transform: rotate(-90deg);
+        opacity: 1;  /* Always visible in mobile */
     }
 
     /* Show controls in fullscreen */
     .slides-deck.fullscreen .mobile-nav,
     .slides-deck.fullscreen .mobile-close {
         display: flex;
-        opacity: 0;  /* Start invisible */
-    }
-
-    .slides-deck.fullscreen.show-controls .mobile-nav,
-    .slides-deck.fullscreen.show-controls .mobile-close {
-        opacity: 1;  /* Show with controls */
     }
 
     /* Make nav buttons more visible */

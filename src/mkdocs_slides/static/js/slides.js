@@ -1,27 +1,19 @@
 window.addEventListener('load', function() {
-    // Track the active deck globally
+    // Track the active deck and control timeout globally
     let activeDeck = null;
+    let controlsTimeout = null;
 
-    // Handle orientation changes
-    function handleOrientation() {
-        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-        document.querySelectorAll('.slides-deck').forEach(deck => {
-            if (isPortrait) {
-                deck.classList.add('portrait');
-                // Exit fullscreen if active
-                if (deck.classList.contains('fullscreen')) {
-                    deck.querySelector('.fullscreen-toggle').click();
-                }
-            } else {
-                deck.classList.remove('portrait');
-            }
-        });
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    // Define showControls at the top level
+    function showControls() {
+        if (!activeDeck) return;
+        activeDeck.classList.add('show-controls');
+        if (controlsTimeout) clearTimeout(controlsTimeout);
+        controlsTimeout = setTimeout(() => {
+            activeDeck.classList.remove('show-controls');
+        }, 3000);
     }
-
-    // Listen for orientation changes
-    window.addEventListener('orientationchange', handleOrientation);
-    window.addEventListener('resize', handleOrientation);
-    handleOrientation(); // Initial check
 
     document.querySelectorAll('.slides-deck').forEach(deck => {
         const slides = Array.from(deck.querySelectorAll('.slide'));
@@ -57,9 +49,11 @@ window.addEventListener('load', function() {
 
         function toggleFullscreen() {
             deck.classList.toggle('fullscreen');
+            activeDeck = deck;  // Set active deck
             if (deck.classList.contains('fullscreen')) {
                 fullscreenBtn.textContent = '⛶';
                 fullscreenBtn.title = 'Exit fullscreen';
+                showControls();  // Now this will work
             } else {
                 fullscreenBtn.textContent = '⛶';
                 fullscreenBtn.title = 'Enter fullscreen';
@@ -78,13 +72,16 @@ window.addEventListener('load', function() {
             }
         }
 
-        // Set active deck on any interaction
+        // Event listeners
         deck.addEventListener('mouseenter', () => {
             activeDeck = deck;
         });
 
         deck.addEventListener('click', () => {
             activeDeck = deck;
+            if (deck.classList.contains('fullscreen')) {
+                showControls();  // Now this will work
+            }
         });
 
         // Button click handlers
@@ -107,23 +104,44 @@ window.addEventListener('load', function() {
 
         // Keyboard navigation - moved to global handler
         showSlide(0);
+
+        if (isMobile) {
+            const mobileClose = deck.querySelector('.mobile-close');
+            const mobilePrev = deck.querySelector('.mobile-prev');
+            const mobileNext = deck.querySelector('.mobile-next');
+            const mobileOverview = deck.querySelector('.mobile-overview');
+
+            // Mobile controls
+            mobilePrev?.addEventListener('click', (e) => {
+                prevSlide();
+                showControls();
+                e.stopPropagation();
+            });
+
+            mobileNext?.addEventListener('click', (e) => {
+                nextSlide();
+                showControls();
+                e.stopPropagation();
+            });
+
+            mobileOverview?.addEventListener('click', (e) => {
+                toggleOverview();
+                showControls();
+                e.stopPropagation();
+            });
+
+            // Separate mobile close handler
+            mobileClose?.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFullscreen();
+            });
+        }
     });
 
     // Global keyboard handler
     document.addEventListener('keydown', function(e) {
         if (!activeDeck) return;
-
-        // Only handle keyboard if active deck is visible or in fullscreen
-        const rect = activeDeck.getBoundingClientRect();
-        const isVisible = (
-            activeDeck.classList.contains('fullscreen') || 
-            (rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= window.innerHeight &&
-            rect.right <= window.innerWidth)
-        );
-        
-        if (!isVisible) return;
 
         const controls = {
             prevSlide: activeDeck.querySelector('.prev-slide'),
@@ -135,6 +153,7 @@ window.addEventListener('load', function() {
             case 'PageUp':
                 if (!controls.prevSlide.disabled) {
                     controls.prevSlide.click();
+                    showControls();  // Now this will work
                     e.preventDefault();
                 }
                 break;
@@ -143,21 +162,26 @@ window.addEventListener('load', function() {
             case ' ': // Space
                 if (!controls.nextSlide.disabled) {
                     controls.nextSlide.click();
+                    showControls();  // Now this will work
                     e.preventDefault();
                 }
                 break;
             case 'Escape':
                 if (activeDeck.classList.contains('overview-active')) {
                     activeDeck.querySelector('.overview-toggle').click();
-                    e.preventDefault();
                 } else if (activeDeck.classList.contains('fullscreen')) {
-                    activeDeck.querySelector('.fullscreen-toggle').click();
-                    e.preventDefault();
+                    const mobileClose = activeDeck.querySelector('.mobile-close');
+                    if (mobileClose) {
+                        mobileClose.click();
+                    } else {
+                        activeDeck.querySelector('.fullscreen-toggle').click();
+                    }
                 }
+                e.preventDefault();
                 break;
             case 'o':
             case 'O':
-                toggleOverview();
+                activeDeck.querySelector('.overview-toggle').click();
                 e.preventDefault();
                 break;
         }

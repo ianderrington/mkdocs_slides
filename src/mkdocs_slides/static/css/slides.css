@@ -34,28 +34,27 @@
     display: block;
 }
 
-/* Controls container */
+/* Controls container - make it more subtle and consistent */
 .slides-controls {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 50px;
+    height: 40px;  /* Slightly smaller height */
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 1rem;
     background: transparent;
-    opacity: 0;  /* Start fully transparent */
-    transition: all 0.2s ease;
+    opacity: 0;
+    transition: all 0.3s ease;
     z-index: 101;
 }
 
 /* Show controls on hover */
 .slides-deck:hover .slides-controls {
     opacity: 1;
-    background: rgba(248, 249, 250, 0.9);
-    border-top: 1px solid #ddd;
+    background: rgba(0, 0, 0, 0.5);  /* Dark background like mobile */
 }
 
 .nav-controls {
@@ -65,26 +64,20 @@
     margin: 0 auto;
 }
 
-/* Control buttons */
+/* Control buttons - consistent styling */
 .slides-controls button {
-    padding: 0.5rem 1rem;
-    border: 1px solid transparent;
+    padding: 0.5rem;
+    border: none;
     background: transparent;
-    border-radius: 4px;
+    font-size: 20px;  /* Consistent size */
+    color: rgba(255, 255, 255, 0.8);  /* Light text like mobile */
     cursor: pointer;
-    color: transparent;  /* Start with transparent text */
     transition: all 0.2s ease;
 }
 
-/* Button hover states */
-.slides-deck:hover .slides-controls button {
-    border-color: #ddd;
-    background: white;
-    color: #666;  /* Show text on hover */
-}
-
 .slides-controls button:hover {
-    background: #f0f0f0;
+    color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);  /* Subtle grow effect */
 }
 
 /* Progress text */
@@ -92,89 +85,205 @@
     min-width: 4em;
     text-align: center;
     font-size: 0.9rem;
-    color: transparent;
-    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-.slides-deck:hover .slide-progress {
-    color: #666;
+/* Utility buttons container */
+.slides-controls .button-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
 }
 
-/* Fullscreen button */
+/* Overview and fullscreen buttons */
+.overview-toggle,
 .fullscreen-toggle {
-    padding: 0.5rem;
-    font-size: 1.2rem;
-    margin-left: 0;  /* Remove auto margin since we're using button-group */
-    opacity: 0;  /* Start invisible */
+    font-size: 20px !important;  /* Force consistent size */
+    padding: 0.5rem !important;
+    opacity: 0.8;
 }
 
-.slides-deck:hover .fullscreen-toggle {
-    opacity: 1;
-}
-
-/* Fullscreen mode adjustments */
-.slides-deck.fullscreen .slides-controls {
-    bottom: 20px;
-    opacity: 0;  /* Start invisible in fullscreen too */
-}
-
-.slides-deck.fullscreen:hover .slides-controls {
-    opacity: 1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .slides-controls {
-        height: 40px;
-    }
-    
-    .slides-controls button {
-        padding: 0.3rem 0.7rem;
-        font-size: 0.9rem;
-    }
-    
-    .slide-progress {
-        font-size: 0.8rem;
-    }
-} 
-
-/* Ensure controls stay visible */
-.slides-controls {
-    z-index: 101;
-} 
-
+/* Base fullscreen mode */
 .slides-deck.fullscreen {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100vw !important;
+    height: 100vh !important;
     max-width: none;
     margin: 0;
-    z-index: 1000;
-    background: white;
+    background: black;
+    z-index: 9999;
 }
 
-/* Make sure the fullscreen button is visible */
-.fullscreen-toggle {
-    padding: 0.5rem;
-    font-size: 1.2rem;
-    margin-left: 0;  /* Remove auto margin since we're using button-group */
-    opacity: 0;  /* Start invisible */
+/* Mobile styles */
+@media (max-width: 768px) {
+    .slides-deck {
+        position: relative;
+        background: #f5f5f5;
+        border: none;
+    }
+
+    /* Make fullscreen button more prominent */
+    .slides-deck .fullscreen-toggle {
+        opacity: 1;
+        color: #2196F3;
+        font-size: 1.8rem;
+    }
+
+    /* Mobile fullscreen mode */
+    .slides-deck.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vh !important;  /* Use viewport height for width */
+        height: 100vw !important; /* Use viewport width for height */
+        max-width: none;
+        margin: 0;
+        background: black;
+        z-index: 9999;
+        transform-origin: top left;
+        transform: rotate(90deg) translateY(-100%);
+    }
+
+    /* Adjust viewport for rotated view */
+    .slides-deck.fullscreen .slides-viewport {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    /* Mobile navigation */
+    .mobile-nav {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        /* Adjust transform to position on the left side of rotated view */
+        transform: rotate(-90deg) translate(-50%, -50vw);
+        display: flex;
+        gap: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 20px;
+        z-index: 10000;
+        opacity: 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+                   0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Mobile close button - more visible */
+    .mobile-close {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        width: 44px;
+        height: 44px;
+        font-size: 36px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+        /* Use solid color instead of gradient for better visibility */
+        color: rgba(255, 255, 255, 0.9);
+        /* Adjust transform to position correctly in rotated view */
+        transform: rotate(-90deg) translate(-50vh, 0);
+        transition: all 0.3s ease;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .mobile-close:hover {
+        color: white;
+        transform: rotate(-90deg) translate(-50vh, 0) scale(1.1);
+        text-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Show controls in fullscreen */
+    .slides-deck.fullscreen .mobile-nav,
+    .slides-deck.fullscreen .mobile-close {
+        display: flex;
+        opacity: 0;  /* Start invisible */
+    }
+
+    .slides-deck.fullscreen.show-controls .mobile-nav,
+    .slides-deck.fullscreen.show-controls .mobile-close {
+        opacity: 1;  /* Show with controls */
+    }
+
+    /* Make nav buttons more visible */
+    .mobile-nav button {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 28px;  /* Larger buttons */
+        padding: 5px 15px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .mobile-nav button:hover {
+        color: white;
+        transform: scale(1.1);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Hide desktop controls in mobile fullscreen */
+    .slides-deck.fullscreen .slides-controls {
+        display: none !important;
+    }
+
+    /* Adjust slide positioning in fullscreen */
+    .slides-deck.fullscreen .slide {
+        width: 100%;
+        height: 100%;
+    }
 }
 
-.slides-deck:hover .fullscreen-toggle {
-    opacity: 1;
-}
-
-/* Fullscreen mode adjustments */
+/* Consistent mobile/desktop controls in fullscreen */
 .slides-deck.fullscreen .slides-controls {
+    position: fixed;
     bottom: 20px;
-    opacity: 0;  /* Start invisible in fullscreen too */
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 20px;
+    opacity: 0;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
+/* Show on hover */
 .slides-deck.fullscreen:hover .slides-controls {
     opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+.slides-deck.fullscreen .slides-controls:hover {
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3),
+                0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Make buttons more visible */
+.slides-deck.fullscreen .slides-controls button {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slides-deck.fullscreen .slides-controls button:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Make progress text more visible */
+.slides-deck.fullscreen .slides-controls .slide-progress {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Overview mode */
@@ -282,125 +391,40 @@
     font-size: 12px;
 }
 
-/* Overview and fullscreen buttons container */
-.slides-controls .button-group {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: auto;
+/* Ensure controls stay visible */
+.slides-controls {
+    z-index: 101;
 }
 
-/* Overview button */
-.overview-toggle {
-    padding: 0.5rem;
-    font-size: 1.2rem;
-    opacity: 0;  /* Start invisible like other controls */
-    transition: all 0.2s ease;
-}
-
-/* Show overview button on hover */
-.slides-deck:hover .overview-toggle {
-    opacity: 1;
-    color: #666;
-}
-
-/* Mobile handling */
-.slides-deck {
-    position: relative;
-    width: 100%;
-    max-width: var(--slide-max-width, 1200px);
-    margin: 2em auto;
-    aspect-ratio: 16 / 9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* Portrait mode message */
-.portrait-message {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    justify-content: center;
+/* Fullscreen close button */
+.slides-deck.fullscreen .mobile-close {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    width: 44px;
+    height: 44px;
+    font-size: 36px;
+    display: flex;  /* Always show in fullscreen */
     align-items: center;
-    text-align: center;
-    padding: 20px;
-    z-index: 1002;
-    font-size: 1.2em;
+    justify-content: center;
+    z-index: 10001;  /* Ensure it's above everything */
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0.7;
+    transition: all 0.3s ease;
 }
 
-.portrait-message .rotate-icon {
-    font-size: 2em;
-    margin: 10px;
-    display: block;
-    transform: rotate(90deg);
-    animation: rotate 2s infinite;
+.slides-deck.fullscreen .mobile-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
 }
 
-@keyframes rotate {
-    0% { transform: rotate(90deg); }
-    20% { transform: rotate(0deg); }
-    80% { transform: rotate(0deg); }
-    100% { transform: rotate(90deg); }
-}
-
-/* Mobile specific adjustments */
-@media (max-width: 768px) {
-    .slides-deck {
-        margin: 1em auto;
-        border-radius: 4px;
-    }
-
-    /* Show portrait message in portrait mode */
-    @media (orientation: portrait) {
-        .slides-deck .portrait-message {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .slides-deck .slides-viewport,
-        .slides-deck .slides-controls {
-            display: none;
-        }
-    }
-
-    /* Landscape adjustments */
-    @media (orientation: landscape) {
-        .slides-deck {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            border: none;
-            border-radius: 0;
-        }
-
-        .slides-controls {
-            height: 40px;
-            padding: 0 0.5rem;
-        }
-
-        .slides-controls button {
-            padding: 0.3rem 0.7rem;
-            font-size: 0.9rem;
-        }
-
-        .slide-progress {
-            font-size: 0.8rem;
-        }
-
-        /* Adjust overview for mobile */
-        .slides-overview {
-            width: 100vw;
-            height: 100vh;
-            padding: 15px;
-        }
-
-        .overview-slide {
-            min-width: 160px;
-        }
-    }
+/* Show controls on hover or touch */
+.slides-deck.fullscreen:hover .slides-controls,
+.slides-deck.fullscreen.show-controls .slides-controls {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
 } 

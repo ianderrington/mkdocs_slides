@@ -347,24 +347,32 @@
         box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
     }
 
-    /* Rotate controls to match slide orientation */
+    /* Position controls on the left side in mobile fullscreen */
     .slides-deck.fullscreen .slides-controls {
         position: fixed;
         bottom: auto;
         top: 50%;
-        left: auto;
-        right: 20px;
-        transform: rotate(90deg) translateX(-50%);
-        transform-origin: right center;
+        left: 20px;  /* Changed from right to left */
+        right: auto;
+        transform: rotate(90deg) translateY(-50%);  /* Changed translateX to translateY */
+        transform-origin: left center;  /* Changed from right to left */
         background: rgba(0, 0, 0, 0.7);
         border-radius: 20px;
         padding: 0.5rem 1rem;
+        width: auto;
+        min-width: 200px;
     }
 
-    /* Show controls consistently in mobile */
+    /* Adjust hover state for left-side controls */
     .slides-deck.fullscreen:hover .slides-controls {
         opacity: 1;
-        transform: rotate(90deg) translateX(-50%);
+        transform: rotate(90deg) translateY(-50%);  /* Match the new transform */
+    }
+
+    /* Make controls more visible on mobile */
+    .slides-deck.fullscreen .slides-controls {
+        opacity: 0.9;  /* Slightly more visible by default */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     }
 
     /* Hide mobile-specific controls in fullscreen */

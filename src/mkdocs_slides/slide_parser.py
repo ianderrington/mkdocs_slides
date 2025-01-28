@@ -67,8 +67,6 @@ class SlideParser:
         slides = []
         docs_dir = self.config["docs_dir"]
         site_dir = self.config["site_dir"]
-
-        # Get the directory of the current markdown file
         current_file_dir = os.path.dirname(os.path.join(docs_dir, self.page.file.src_path))
 
         for path in nav_paths:
@@ -102,44 +100,44 @@ class SlideParser:
                         "tables",
                         "fenced_code",
                         "attr_list",
-                        "codehilite",  # Add syntax highlighting support
+                        "codehilite",
+                        "pymdownx.superfences",
                     ]
                 )
                 html_content = md.convert(content.strip())
 
-                # Ensure code blocks have proper language classes
-                html_content = html_content.replace(
-                    "<pre><code>", '<pre><code class="hljs">'
-                )
-
-                # Ensure no wrapping divs are added
-                html_content = html_content.replace(
-                    '<div class="markdown">', ""
-                ).replace("</div>", "")
+                # Process Mermaid blocks
+                if '```mermaid' in content:
+                    # First pattern for the main content
+                    html_content = re.sub(
+                        r'<div class="highlight"><pre><span></span><code>graph',
+                        r'<pre class="mermaid"><code>graph',
+                        html_content
+                    )
+                    # Clean up the closing tags
+                    html_content = html_content.replace(
+                        '</code></pre></div>',
+                        '</code></pre>'
+                    )
+                    # Also handle any overview/duplicate blocks
+                    html_content = html_content.replace(
+                        '<div class="highlight"><pre>',
+                        '<pre class="mermaid">'
+                    ).replace(
+                        '</pre></div>',
+                        '</pre>'
+                    )
 
                 title = self._extract_slide_title(content)
-
-                # Generate HTML file path
-                html_path = os.path.splitext(path)[0] + ".html"
-                abs_html_path = os.path.join(site_dir, "slides", html_path)
-
-                # Create slide HTML
-                slide_html = self.slide_template.render(
-                    content=html_content, title=title
-                )
-
-                self.files_to_write.append(
-                    {"path": abs_html_path, "content": slide_html}
-                )
-
-                # Calculate relative path
-                page_dir = os.path.dirname(self.page.url)
-                rel_path = os.path.relpath(os.path.join("slides", html_path), page_dir)
-
-                slides.append({"html_path": rel_path, "title": title})
+                
+                slides.append({
+                    "content": html_content,
+                    "title": title,
+                })
 
             except Exception as e:
-                raise ValueError(f"Error processing slide {path}: {str(e)}")
+                print(f"Error processing slide {path}: {str(e)}")
+                continue
 
         return slides
 
@@ -160,7 +158,7 @@ class SlideParser:
         return "Untitled Slide"
 
     def _generate_slides_html(self, config, slides):
-        """Generate the slides container with iframes"""
+        """Generate the slides container with divs"""
         style = f"""
             --slide-padding: {self.config.get('padding', '64px')};
             --slide-max-width: {self.config.get('max_width', '1200px')};
@@ -171,43 +169,65 @@ class SlideParser:
         html = f'<div class="slides-deck" style="{style}">'
         html += '<div class="slides-viewport">'
 
-        # Add slides
+        # Main slides as divs
         for i, slide in enumerate(slides):
-            display = "block" if i == 0 else "none"
-            html += f'<iframe class="slide" src="{slide["html_path"]}" style="display: {display}"></iframe>'
-        html += "</div>"
+            display = 'block' if i == 0 else 'none'
+            html += f'<div class="slide" data-index="{i}" style="display: {display}">'
+            html += slide['content']
+            html += '</div>'
+        html += '</div>'
 
-        # Add overview grid
+        # Overview grid
         html += '<div class="slides-overview">'
         html += '<button class="overview-close" title="Close overview (Esc)">×</button>'
         for i, slide in enumerate(slides):
             html += f'<div class="overview-slide" data-index="{i}">'
-            html += f'<iframe src="{slide["html_path"]}"></iframe>'
+            html += slide['content']  # Use content directly instead of iframe
             html += f'<span class="overview-number">{i + 1}</span>'
             html += '</div>'
         html += '</div>'
 
-        # Add controls with tooltips and buttons
+        # Controls (unchanged)
         html += '<div class="slides-controls">'
         html += '<div class="nav-controls">'
         html += '<button class="prev-slide" title="Previous (← Left arrow)">←</button>'
         html += f'<span class="slide-progress">1 / {len(slides)}</span>'
         html += '<button class="next-slide" title="Next (→ Right arrow)">→</button>'
-        html += "</div>"
-        # Group the overview and fullscreen buttons
+        html += '</div>'
         html += '<div class="button-group">'
         html += '<button class="overview-toggle" title="Toggle overview (O)">⊞</button>'
         html += '<button class="fullscreen-toggle" title="Toggle fullscreen">⛶</button>'
-        html += "</div>"
-        html += "</div>"
+        html += '</div>'
+        html += '</div>'
 
-        # Add mobile-specific elements (remove duplicate mobile-close)
+        # Mobile controls (unchanged)
         html += '<div class="mobile-nav">'
         html += '<button class="mobile-prev">←</button>'
         html += '<button class="mobile-overview">⊞</button>'
         html += '<button class="mobile-next">→</button>'
         html += '</div>'
-        html += '<button class="mobile-close">×</button>'  # Only one close button
+        html += '<button class="mobile-close">×</button>'
 
-        html += "</div>"
+        html += '</div>'
         return html
+
+    def on_page_content(self, html, page, config, files):
+        """Process the entire page content at once"""
+        try:
+            if not '```slides' in html:
+                return html
+
+            # Extract slide content
+            slides_match = re.search(r'```slides(.*?)```', html, re.DOTALL)
+            if not slides_match:
+                return html
+
+            # Process all slides in one go
+            slides_config = yaml.safe_load(slides_match.group(1))
+            slides_html = self._process_slides(slides_config, config)
+            
+            # Replace the slides block with processed HTML
+            return html.replace(slides_match.group(0), slides_html)
+        except Exception as e:
+            print(f"Error processing slides: {str(e)}")
+            return html

@@ -1,4 +1,11 @@
 window.addEventListener('load', function() {
+    // Initialize Mermaid first
+    mermaid.initialize({
+        startOnLoad: false,  // We'll render manually
+        theme: 'default',
+        securityLevel: 'loose'
+    });
+
     // Track the active deck and control timeout globally
     let activeDeck = null;
     let controlsTimeout = null;
@@ -130,11 +137,57 @@ window.addEventListener('load', function() {
                 e.stopPropagation();
             });
 
-            // Separate mobile close handler
+            // Separate mobile close handler - directly exit fullscreen
             mobileClose?.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toggleFullscreen();
+                console.log('Mobile close clicked');  // Add debug
+                deck.classList.remove('fullscreen');
+                fullscreenBtn.textContent = '⛶';
+                fullscreenBtn.title = 'Enter fullscreen';
+                window.dispatchEvent(new Event('resize'));
+            }, true);  // Use capture phase
+        }
+
+        // Process Mermaid diagrams
+        const mermaidDivs = deck.querySelectorAll('.mermaid');
+        mermaidDivs.forEach((div, index) => {
+            // Clean up the content to just get the diagram code
+            const content = div.textContent.trim();
+            if (!content) return;
+
+            const id = `mermaid-${index}`;  // Simpler ID
+            try {
+                mermaid.render(id, content)
+                    .then(result => {
+                        div.innerHTML = result.svg;
+                        // Scale SVG after rendering
+                        const svg = div.querySelector('svg');
+                        if (svg) {
+                            svg.style.width = '100%';
+                            svg.style.maxWidth = '100%';
+                            svg.style.height = 'auto';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Mermaid error:', error);
+                        console.log('Content that failed:', content);  // Debug
+                    });
+            } catch (error) {
+                console.error('Mermaid render error:', error);
+            }
+        });
+
+        // Update the close button handler
+        const closeButton = deck.querySelector('.mobile-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                deck.classList.remove('fullscreen');
+                fullscreenBtn.textContent = '⛶';
+                fullscreenBtn.title = 'Enter fullscreen';
+                window.dispatchEvent(new Event('resize'));
             });
         }
     });
@@ -153,7 +206,18 @@ window.addEventListener('load', function() {
     document.addEventListener('keydown', function(e) {
         if (!activeDeck) return;
 
-        // Handle keyboard events even when slides are clicked
+        // Only handle keyboard if active deck is visible or in fullscreen
+        const rect = activeDeck.getBoundingClientRect();
+        const isVisible = (
+            activeDeck.classList.contains('fullscreen') || 
+            (rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= window.innerHeight &&
+            rect.right <= window.innerWidth)
+        );
+        
+        if (!isVisible) return;
+
         const controls = {
             prevSlide: activeDeck.querySelector('.prev-slide'),
             nextSlide: activeDeck.querySelector('.next-slide')
@@ -180,15 +244,18 @@ window.addEventListener('load', function() {
             case 'Escape':
                 if (activeDeck.classList.contains('overview-active')) {
                     activeDeck.querySelector('.overview-toggle').click();
+                    e.preventDefault();
                 } else if (activeDeck.classList.contains('fullscreen')) {
-                    const mobileClose = activeDeck.querySelector('.mobile-close');
-                    if (mobileClose) {
-                        mobileClose.click();
+                    if (isMobile) {
+                        const mobileClose = activeDeck.querySelector('.mobile-close');
+                        if (mobileClose) {
+                            mobileClose.click();
+                        }
                     } else {
                         activeDeck.querySelector('.fullscreen-toggle').click();
                     }
+                    e.preventDefault();
                 }
-                e.preventDefault();
                 break;
             case 'o':
             case 'O':
@@ -196,5 +263,35 @@ window.addEventListener('load', function() {
                 e.preventDefault();
                 break;
         }
+    });
+
+    // Function to scale Mermaid diagrams
+    function scaleMermaidDiagrams(deck) {
+        const slides = deck.querySelectorAll('.slide');
+        slides.forEach(slide => {
+            const mermaidDivs = slide.querySelectorAll('.mermaid');
+            mermaidDivs.forEach(div => {
+                const svg = div.querySelector('svg');
+                if (svg) {
+                    const box = svg.getBBox();
+                    svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                }
+            });
+        });
+    }
+
+    // Call this after Mermaid renders
+    document.querySelectorAll('iframe').forEach(iframe => {
+        iframe.addEventListener('load', function() {
+            const mermaidDivs = iframe.contentDocument.querySelectorAll('.mermaid');
+            mermaidDivs.forEach(div => {
+                mermaid.render(`mermaid-${Math.random()}`, div.textContent)
+                    .then(result => {
+                        div.innerHTML = result.svg;
+                        scaleMermaidDiagrams(deck);  // Scale after rendering
+                    });
+            });
+        });
     });
 }); 

@@ -19,4 +19,13 @@ nav:
   - features/01_markdown.md
   - features/02_code.md
   - features/03_images.md
+  - features/04_mermaid.md
+```
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```

@@ -9,6 +9,12 @@ theme:
     - navigation.expand
     - search.highlight
     - content.code.copy
+  markdown_extensions:
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
 
 plugins:
   - search
@@ -25,7 +31,11 @@ nav:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - attr_list
   - md_in_html
   - pymdownx.highlight:

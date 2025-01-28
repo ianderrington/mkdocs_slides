@@ -7,6 +7,17 @@
     <!-- Add highlight.js for syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Add Mermaid -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'default',
+                securityLevel: 'loose'
+            });
+        });
+    </script>
     <style>
         :root {
             --slide-width: 1280px;
@@ -140,11 +151,19 @@
             width: 100%;
         }
     </style>
+</head>
+<body>
+    <div class="slide-content">
+        {{ content|safe }}
+    </div>
+
     <script>
-        // Initialize syntax highlighting
         document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
+            // Initialize highlight.js
+            document.querySelectorAll('pre code.hljs').forEach((block) => {
+                // Escape HTML content before highlighting
+                block.textContent = block.innerHTML;
+                hljs.highlightElement(block);
             });
         });
 
@@ -165,10 +184,5 @@
         window.addEventListener('load', scaleContent);
         window.addEventListener('resize', scaleContent);
     </script>
-</head>
-<body>
-    <div class="slide-content">
-        {{ content|safe }}
-    </div>
 </body>
 </html> 

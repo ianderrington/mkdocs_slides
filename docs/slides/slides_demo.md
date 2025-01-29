@@ -20,6 +20,7 @@ nav:
   - features/02_code.md
   - features/03_images.md
   - features/04_mermaid.md
+  - features/05_blocks.md
 ```
 
 ```mermaid

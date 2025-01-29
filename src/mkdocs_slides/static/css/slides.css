@@ -26,15 +26,16 @@
     left: 0;
     width: 100%;
     height: 100%;
-    padding: var(--slide-padding, 64px);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background: white;
-    /* Add subtle shadow to show boundaries */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    
+    /* Make padding proportional to height */
+    --padding-ratio: 0.06;  /* 6% of container height */
+    padding: calc(100% * var(--padding-ratio));
 }
 
 /* Fullscreen mode with calculated dimensions */
@@ -44,66 +45,70 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    max-width: none;
     margin: 0;
     padding: 0;
-    z-index: 9999;
-    /* Dark background for unused space */
     background: rgba(0, 0, 0, 0.9);
-    /* Center everything */
+    z-index: 9999;
+    
+    /* Center the viewport */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Viewport container with proper aspect ratio */
+/* Viewport scales while maintaining aspect ratio */
 .slides-deck.fullscreen .slides-viewport {
-    /* Calculate dimensions maintaining 16:9 aspect ratio */
-    --viewport-height: min(100vh - 40px, 100vw * 9/16);
-    --viewport-width: calc(var(--viewport-height) * 16/9);
+    /* Calculate the maximum dimensions that fit in the viewport while maintaining 16:9 */
+    --max-width: min(100vw, calc(100vh * 16/9));
+    --max-height: min(100vh, calc(100vw * 9/16));
     
-    width: min(var(--viewport-width), 100vw - 40px);
-    height: min(var(--viewport-height), 100vh - 40px);
+    width: var(--max-width);
+    height: var(--max-height);
     
-    /* Center positioning */
-    position: relative;
-    margin: auto;
-    
-    /* Clean background for active area */
+    /* This creates the "picture frame" effect */
     background: white;
     border-radius: 8px;
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
     
-    /* Ensure content doesn't overflow */
+    /* Maintain position */
+    position: relative;
     overflow: hidden;
 }
 
-/* Individual slide */
+/* Scale slide content relative to viewport */
 .slides-deck.fullscreen .slide {
-    /* Calculate scale based on viewport */
-    --base-width: var(--slide-max-width, 1200px);
-    --scale: min(
-        calc((100vw - 80px) / var(--base-width)),
-        calc((100vh - 80px) / (var(--base-width) * 9/16))
-    );
+    /* Base font size on viewport height */
+    --base-size: calc(var(--max-height) * 0.025);  /* 2.5% of viewport height */
+    font-size: var(--base-size);
     
-    transform: scale(var(--scale));
-    transform-origin: center;
+    /* Scale padding proportionally */
+    padding: calc(var(--max-height) * var(--padding-ratio));
     
-    /* Ensure slide fills viewport */
-    width: 100%;
-    height: 100%;
-    
-    /* Center content */
+    /* Ensure content stays centered */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    
-    /* Clean background */
-    background: white;
-    padding: var(--slide-padding, 64px);
-    box-sizing: border-box;
+}
+
+/* Scale text elements relative to base font size */
+.slides-deck.fullscreen .slide h1 { 
+    font-size: 2.5em;
+    margin-bottom: 0.8em;
+}
+
+.slides-deck.fullscreen .slide h2 { 
+    font-size: 2em;
+    margin-bottom: 0.6em;
+}
+
+.slides-deck.fullscreen .slide p,
+.slides-deck.fullscreen .slide ul,
+.slides-deck.fullscreen .slide ol { 
+    font-size: 1.2em;
+    width: 90%;
+    margin: 0.4em auto;
+    line-height: 1.4;
 }
 
 /* Remove the gradient indicators in fullscreen */
@@ -132,16 +137,6 @@
 .slides-viewport::after {
     right: -20%;
     background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.1));
-}
-
-/* Content scaling in fullscreen */
-.slides-deck.fullscreen .slide h1 { font-size: 3em; }
-.slides-deck.fullscreen .slide h2 { font-size: 2.5em; }
-.slides-deck.fullscreen .slide p,
-.slides-deck.fullscreen .slide ul,
-.slides-deck.fullscreen .slide ol { 
-    font-size: 1.5em;
-    width: 90%;
 }
 
 /* Mermaid scaling in fullscreen */
@@ -321,6 +316,65 @@
 
 /* Mobile adjustments - only for fullscreen mode */
 @media (max-width: 768px) {
+    .slides-deck.fullscreen {
+        transform-origin: top left;
+        transform: rotate(90deg) translateY(-100%);
+        width: 100vh !important;
+        height: 100vw !important;
+    }
+
+    .slides-deck.fullscreen .slides-viewport {
+        /* Recalculate for rotated viewport */
+        --max-width: min(100vh, calc(100vw * 16/9));
+        --max-height: min(100vw, calc(100vh * 9/16));
+        
+        width: var(--max-width);
+        height: var(--max-height);
+    }
+
+    /* Adjust content scaling for mobile fullscreen */
+    .slides-deck.fullscreen .slide {
+        /* Recalculate base size for rotated viewport */
+        --base-size: calc(var(--max-height) * 0.025);
+        font-size: var(--base-size);
+        
+        /* Keep padding proportional */
+        padding: calc(var(--max-height) * var(--padding-ratio));
+    }
+
+    /* Adjust content sizes for better mobile viewing */
+    .slides-deck.fullscreen .slide h1 { 
+        font-size: min(6vh, 2.5em);
+        margin-bottom: 0.3em;
+        text-align: center;
+    }
+
+    .slides-deck.fullscreen .slide h2 { 
+        font-size: min(5vh, 2em);
+        margin-bottom: 0.3em;
+        text-align: center;
+    }
+
+    .slides-deck.fullscreen .slide p,
+    .slides-deck.fullscreen .slide ul,
+    .slides-deck.fullscreen .slide ol { 
+        font-size: min(4vh, 1.5em);
+        width: 85%;
+        margin: 0.4em auto;
+        text-align: left;
+    }
+
+    /* Adjust Mermaid diagrams for mobile */
+    .slides-deck.fullscreen .mermaid {
+        width: 85%;
+        max-width: none;
+        margin: 1em auto;
+    }
+
+    .slides-deck.fullscreen .mermaid svg {
+        max-height: 50vh;
+    }
+
     /* Fullscreen mode forces landscape */
     .slides-deck.fullscreen {
         position: fixed;
@@ -347,32 +401,22 @@
         box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
     }
 
-    /* Position controls on the left side in mobile fullscreen */
+    /* Position controls correctly on the side */
     .slides-deck.fullscreen .slides-controls {
-        position: fixed;
-        bottom: auto;
-        top: 50%;
-        left: 20px;  /* Changed from right to left */
-        right: auto;
-        transform: rotate(90deg) translateY(-50%);  /* Changed translateX to translateY */
-        transform-origin: left center;  /* Changed from right to left */
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        width: auto;
+        position: fixed !important;
+        bottom: auto !important;
+        top: 50% !important;
+        left: auto !important;
+        right: 20px !important;  /* Adjust this value to position from right edge */
+        transform-origin: right center !important;
         min-width: 200px;
+        opacity: 0.9;
     }
 
-    /* Adjust hover state for left-side controls */
+    /* Ensure hover state maintains the rotation */
     .slides-deck.fullscreen:hover .slides-controls {
         opacity: 1;
-        transform: rotate(90deg) translateY(-50%);  /* Match the new transform */
-    }
-
-    /* Make controls more visible on mobile */
-    .slides-deck.fullscreen .slides-controls {
-        opacity: 0.9;  /* Slightly more visible by default */
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        transform: rotate(-90deg) !important;
     }
 
     /* Hide mobile-specific controls in fullscreen */
@@ -577,4 +621,58 @@
 .slides-deck.fullscreen.show-controls .slides-controls {
     opacity: 1;
     transform: translateX(-50%) translateY(-10px);
+}
+
+/* Material components support */
+.slide .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-gap: 1rem;
+    margin: 1rem 0;
+}
+
+.slide .grid.cards {
+    grid-gap: 0.75rem;
+}
+
+.slide .grid.cards > :is(ul, ol) {
+    display: contents;
+}
+
+.slide .grid.cards > :is(ul, ol) > li,
+.slide .grid.cards > .card {
+    border: .05rem solid var(--md-default-fg-color--lightest, rgba(0,0,0,.12));
+    border-radius: .1rem;
+    display: block;
+    margin: 0;
+    padding: 0.75rem;
+    transition: border .25s,box-shadow .25s;
+}
+
+/* Material icons support */
+.slide .lg.middle {
+    font-size: 2em;
+    vertical-align: middle;
+    margin-right: 0.5em;
+}
+
+/* Ensure icons from different sources render properly */
+.slide :is(.material-icons, .octicons, .fontawesome-brands) {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Proper spacing for grid card content */
+.slide .grid.cards > :is(ul, ol) > li > hr {
+    border: none;
+    border-bottom: .05rem solid var(--md-default-fg-color--lightest, rgba(0,0,0,.12));
+    margin: 0.75rem -0.75rem;
+}
+
+.slide .grid.cards > :is(ul, ol) > li > :first-child {
+    margin-top: 0;
+}
+
+.slide .grid.cards > :is(ul, ol) > li > :last-child {
+    margin-bottom: 0;
 } 
